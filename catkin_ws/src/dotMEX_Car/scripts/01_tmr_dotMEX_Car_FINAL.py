@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Nodo para la prueba: Navegacion SIN obstaculos
 # Equipo: dotMEX-CAR 2022
 import cv2
@@ -21,8 +21,22 @@ v = 55.0 #55.0
 #******************************************************************************************
 #******************************************************************************************
 def tip(imagenN):
-	H=np.array([[-5.88392618e-02,-4.02514041e-01,1.19565927e+02],[1.24049432e-18,-1.34260497,3.67342070e+02],[4.47714719e-21,-4.01176785e-03,1.0]])  #Banqueta
-	imagenH = cv2.warpPerspective(imagenN, H, (200,300),borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0)) 
+	img1 = imagenN
+	p1_1 = [248 , 274 ]
+	p1_2 = [ 80 , 450 ]
+	p1_3 = [ 660 , 450 ]
+	p1_4 = [ 436 , 274 ]
+	P1 = np.concatenate(([[p1_1] , [ p1_2 ] , [ p1_3 ], [ p1_4 ] ] ) , axis=0)
+	T = [79, 210]
+	p2_1 = np.add ( [ 0 , 0 ] ,T)
+	p2_2 = np.add ( [ 0 , 88.2 ] ,T)
+	p2_3 = np.add ( [ 39.5, 88.2 ] ,T)
+	p2_4 = np.add ( [ 40.6 , 0 ] ,T)
+	P2 = np.array( [ p2_1 , p2_2 , p2_3 , p2_4 ] )
+	M, mask = cv2.findHomography(P1,P2,cv2.RANSAC,5.0)
+
+	imagenH = cv2.warpPerspective(img1,M,(200,300), borderMode=cv2.BORDER_CONSTANT, borderValue=(150,150,150))
+	
 	return imagenH
 #******************************************************************************************
 #******************************************************************************************
@@ -103,16 +117,21 @@ def callback_V(data0):
 	global FT 
 	global x1, x2, x1_h
 
-	imagen0 = bridge.imgmsg_to_cv2(data0, "bgr8") 	
+	imagen0 = bridge.imgmsg_to_cv2(data0, "bgr8")
+	imagen0 = cv2.resize(imagen0, (640,480))
+	#print(imagen0.shape)
 	imagenF = tip(imagen0)	
+	#print(imagenF.shape)
 	lower1 = np.array([10,0,100]) 
 	upper1 = np.array([30,100,150]) 
 	imagenF1 = cv2.inRange(cv2.cvtColor(imagenF,cv2.COLOR_BGR2HSV),lower1,upper1)
-	lower2 = np.array([0,0,100]) 
+		
+	lower2 = np.array([0,0,200]) 
 	upper2 = np.array([179,50,255]) 
 	imagenF2 = cv2.inRange(cv2.cvtColor(imagenF,cv2.COLOR_BGR2HSV),lower2,upper2)
 	imagenF = cv2.GaussianBlur(imagenF1+imagenF2,(9,9),0)				
 	_,imagenF = cv2.threshold(imagenF,25,255,cv2.THRESH_BINARY)
+	
 	imagenF = cv2.Sobel(imagenF, cv2.CV_8U, 1, 0, ksize=7, borderType=cv2.BORDER_DEFAULT)
 
 	y1 = 0
@@ -136,7 +155,18 @@ def callback_V(data0):
 	if (u<-0.83): u = -0.83
 	Vpub.publish(v) 
 	Spub.publish(u)
-
+	
+	
+	#Visualizacion
+	imagenF = cv2.cvtColor(imagenF,cv2.COLOR_GRAY2BGR)
+	imagenF = cv2.circle(imagenF,(x1,y1),3,(0, 0, 255),-1)
+	imagenF = cv2.circle(imagenF,(x2,y2),3,(0, 0, 255),-1)
+	imagenF = cv2.line(imagenF, (x1,y1), (x2,y2), (0, 0, 255), 3)
+	
+	cv2.imshow('homografia',imagenF)	
+	#cv2.moveWindow("homografia", 400,20)
+	cv2.waitKey(1)
+	
 #******************************************************************************************
 #******************************************************************************************
 #******************************************************************************************
@@ -148,3 +178,4 @@ if __name__ == '__main__':
 	Spub = rospy.Publisher('steering',Float64,queue_size=15)
 	rospy.Subscriber("/camera/rgb/raw",Image,callback_V)	 				
 	rospy.spin()
+	
