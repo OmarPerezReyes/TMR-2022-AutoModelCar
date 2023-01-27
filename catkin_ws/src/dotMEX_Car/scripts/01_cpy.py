@@ -134,10 +134,18 @@ def callback_V(data0):
 	u = np.arctan(ky*e_y+kth*e_th)
 	if (u>0.83): u = 0.83
 	if (u<-0.83): u = -0.83
-	Vpub.publish(v) 
-	Spub.publish(u)
+	Vpub.publish(15) 
+	Spub.publish(0)
 
-	#Visualizacion
+	#Visualizacion 2021b
+	print('e_y: = ', e_y) #-2 a (-1)
+	print('e_th: = ', e_th) #0.0
+	print('u: = ', u) #-0.012 a -0.02
+	#print('x1: = ', x1) #119
+	#print('x2: = ', x2) #119
+	#print('y1: = ', y1) #298
+	#print('y2: = ', y2) #219
+	
 	imagenF = cv2.cvtColor(imagenF,cv2.COLOR_GRAY2BGR)
 	imagenF = cv2.circle(imagenF,(x1,y1),3,(0, 0, 255),-1)
 	imagenF = cv2.circle(imagenF,(x2,y2),3,(0, 0, 255),-1)

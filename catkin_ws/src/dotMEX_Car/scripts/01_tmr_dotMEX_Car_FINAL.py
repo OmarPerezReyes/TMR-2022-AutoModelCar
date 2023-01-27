@@ -119,9 +119,9 @@ def callback_V(data0):
 
 	imagen0 = bridge.imgmsg_to_cv2(data0, "bgr8")
 	imagen0 = cv2.resize(imagen0, (640,480))
-	#print(imagen0.shape)
+
 	imagenF = tip(imagen0)	
-	#print(imagenF.shape)
+
 	lower1 = np.array([10,0,100]) 
 	upper1 = np.array([30,100,150]) 
 	imagenF1 = cv2.inRange(cv2.cvtColor(imagenF,cv2.COLOR_BGR2HSV),lower1,upper1)
@@ -151,13 +151,24 @@ def callback_V(data0):
 	e_y = x1-x_ref
 	e_th = np.arctan2(x2-x1,l)
 	u = np.arctan(ky*e_y+kth*e_th)
+
 	if (u>0.83): u = 0.83
 	if (u<-0.83): u = -0.83
-	Vpub.publish(v) 
+
+	Vpub.publish(15) 
 	Spub.publish(u)
 	
 	
-	#Visualizacion
+	#Visualizacion 2022A
+	print('e_y: = ', e_y) #-3
+	print('e_th: = ', e_th) #0.0
+	print('u: = ', u) #-0.06 a -0.08
+	#print('x1: = ', x1) #117
+	#print('x2: = ', x2) #117
+	#print('y1: = ', y1) #298
+	#print('y2: = ', y2) #219
+	
+	
 	imagenF = cv2.cvtColor(imagenF,cv2.COLOR_GRAY2BGR)
 	imagenF = cv2.circle(imagenF,(x1,y1),3,(0, 0, 255),-1)
 	imagenF = cv2.circle(imagenF,(x2,y2),3,(0, 0, 255),-1)
@@ -175,7 +186,7 @@ if __name__ == '__main__':
 	print("Nodo inicializado: TMR_01.py")
 	rospy.init_node('TMR_01',anonymous=True)												
 	Vpub = rospy.Publisher('speed',Float64,queue_size=15)				 
-	Spub = rospy.Publisher('steering',Float64,queue_size=15)
+	Spub = rospy.Publisher('steering',Float64,queue_size=0)
 	rospy.Subscriber("/camera/rgb/raw",Image,callback_V)	 				
 	rospy.spin()
 	
