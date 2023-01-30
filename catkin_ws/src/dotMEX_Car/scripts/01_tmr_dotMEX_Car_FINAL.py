@@ -11,10 +11,10 @@ from std_msgs.msg import Float64
 bridge = CvBridge()
 FT = 0
 l = 80 #50 
-x_ref = 120
-x1 = 120
-x2 = 120
-x1_h = 120
+x_ref = 117
+x1 = 117
+x2 = 117
+x1_h = 117
 u = 0.0
 v = 55.0 #55.0
 #******************************************************************************************
@@ -155,12 +155,13 @@ def callback_V(data0):
 	if (u>0.83): u = 0.83
 	if (u<-0.83): u = -0.83
 
-	Vpub.publish(15) 
-	Spub.publish(u)
+	Vpub.publish(v) 
+	Spub.publish(-u)
 	
 	
 	#Visualizacion 2022A
 	print('e_y: = ', e_y) #-3
+	
 	print('e_th: = ', e_th) #0.0
 	print('u: = ', u) #-0.06 a -0.08
 	#print('x1: = ', x1) #117
