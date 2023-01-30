@@ -21,7 +21,7 @@ v = 55.0 #55.0
 #******************************************************************************************
 #******************************************************************************************
 def tip(imagenN):
-	H=np.array([[-5.88392618e-02,-4.02514041e-01,1.19565927e+02],[1.24049432e-18,-1.34260497,3.67342070e+02],[4.47714719e-21,-4.01176785e-03,1.0]])  #Banqueta
+	H=np.array([[-5.88392618e-02,-4.02514041e-01,1.19565927e+02],[1.24049432e-18,-1.34260497,3.67342070e+02], [4.47714719e-21,-4.01176785e-03,1.0]])  #Banqueta
 	imagenH = cv2.warpPerspective(imagenN, H, (200,300),borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0)) 
 	return imagenH
 #******************************************************************************************
@@ -103,7 +103,8 @@ def callback_V(data0):
 	global FT 
 	global x1, x2, x1_h
 
-	imagen0 = bridge.imgmsg_to_cv2(data0, "bgr8") 	
+	imagen0 = bridge.imgmsg_to_cv2(data0, "bgr8") 
+	imagen0 = cv2.resize(imagen0, (640,480))	
 	imagenF = tip(imagen0)	
 	lower1 = np.array([10,0,100]) 
 	upper1 = np.array([30,100,150]) 
@@ -134,8 +135,8 @@ def callback_V(data0):
 	u = np.arctan(ky*e_y+kth*e_th)
 	if (u>0.83): u = 0.83
 	if (u<-0.83): u = -0.83
-	Vpub.publish(15) 
-	Spub.publish(0)
+	Vpub.publish(v) 
+	Spub.publish(u)
 
 	#Visualizacion 2021b
 	print('e_y: = ', e_y) #-2 a (-1)
