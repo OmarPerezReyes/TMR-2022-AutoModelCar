@@ -38,8 +38,8 @@ cv::Mat orig_image(cv::Size(640, 480), CV_8UC3);
 
 double FT = 0;
 int l = 50; //80 
-int x_ref = 120;
-int x1_h = 120;
+int x_ref = 116;
+int x1_h = 116;
 double u = 0.0;
 double v = 55.0; //55.0
 
@@ -55,7 +55,7 @@ cv::Mat imagenFNew(300, 200, CV_8UC1);
 cv::Mat imagenFThresh(300, 200, CV_8UC1); 
 cv::Mat imagenFSobel(300, 200, CV_8UC1); 
 
-cv::Mat perspectiveMatrix = (cv::Mat_<double>(3,3) << -5.88392618e-02,-4.02514041e-01,1.19565927e+02, 1.24049432e-18,-1.34260497,3.67342070e+02, 4.47714719e-21,-4.01176785e-03,1.0);
+cv::Mat perspectiveMatrix = (cv::Mat_<double>(3,3) << -8.35912981e-02, -4.84520935e-01,  1.22910610e+02, 2.49197949e-15 ,-1.71524271e+00 , 3.88691168e+02,8.53490175e-18, -5.06231029e-03  ,1.00000000e+00);
 
 // Function declaration  
 void imageCallback(const sensor_msgs::ImageConstPtr& msg);
@@ -203,7 +203,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){
     //orig_image, original
     orig_image = cv_bridge::toCvShare(msg, "bgr8")->image.clone(); 
     orig = orig_image.clone(); 
-    
+    cv::resize(orig, orig, cv::Size(640,480));
+   
     //imagenF, perspectiva, tip function in python
     cv::warpPerspective(orig, imagenF, perspectiveMatrix, imagenF.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT);  
     
@@ -213,7 +214,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){
     
     //imagenF2, lineas dividen carril blanco,  in range(cvtcolor)
     cv::cvtColor(imagenF, imagenFHSV2, cv::COLOR_BGR2HSV);
-    cv::inRange(imagenFHSV2, cv::Scalar(0, 0, 100), cv::Scalar(179, 50, 255), imagenF2);    
+    cv::inRange(imagenFHSV2, cv::Scalar(0, 0, 200), cv::Scalar(179, 50, 255), imagenF2);    
 
     //imagenFNew, desenfoque gaussiano no idéntico al original (cambio blend por suma)
     cv::GaussianBlur(imagenF1+imagenF2, imagenFNew, cv::Size(9, 9), 0); 
@@ -228,8 +229,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){
     cv::imshow("imagenFSobel", imagenFSobel);
     cv::waitKey(1);
 
-    cv::Point pt1( 120, 0);
-    cv::Point pt2( 120, 0);
+    cv::Point pt1( 116, 0);
+    cv::Point pt2( 116, 0);
     
     //cambio valor de 0 a 30
     if (FT <= 30){
@@ -261,7 +262,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){
     pubSpeed.publish(speedMsg);
 
     std_msgs::Float64 steeringMsg;
-    steeringMsg.data = u;
+    steeringMsg.data = -u;
     pubSteering.publish(steeringMsg);    
        
 
